@@ -1,0 +1,10 @@
+$TTL 604800
+@   IN  SOA ns1.test1example.lab. admin.test1example.lab. (
+        1 604800 86400 2419200 604800 )
+;
+@ IN NS ns1.test1example.lab.
+@ IN NS ns2.test1example.lab.
+ns1.test1example.lab. IN A 172.20.0.9
+ns2.test1example.lab. IN A 172.20.0.10
+www IN A 10.0.2.5
+api IN A 10.0.2.6

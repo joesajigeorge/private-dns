@@ -1,0 +1,109 @@
+version: "3"
+
+services:
+  root:
+    image: ubuntu/bind9
+    container_name: root-dns
+    entrypoint: ["/usr/sbin/named", "-u", "bind", "-c", "/etc/bind/named.conf", "-f"]
+    networks:
+      dns-net:
+        ipv4_address: 172.20.0.2
+    volumes:
+      - ./root/named.conf:/etc/bind/named.conf
+      - ./root/db.root:/etc/bind/db.root
+      - ./logs/root:/var/log/named
+    ports:
+      - "1053:53/udp"
+      - "1053:53/tcp"
+
+  tld-lab:
+    image: ubuntu/bind9
+    container_name: tld-lab-dns
+    entrypoint: ["/usr/sbin/named", "-u", "bind", "-c", "/etc/bind/named.conf", "-f"]
+    networks:
+      dns-net:
+        ipv4_address: 172.20.0.3
+    volumes:
+      - ./tld-lab/named.conf:/etc/bind/named.conf
+      - ./tld-lab/db.lab:/etc/bind/db.lab
+      - ./logs/tld-lab:/var/log/named
+
+  resolver:
+    image: ubuntu/bind9
+    container_name: resolver-dns
+    entrypoint: ["/usr/sbin/named", "-u", "bind", "-c", "/etc/bind/named.conf", "-f"]
+    networks:
+      dns-net:
+        ipv4_address: 172.20.0.5
+    volumes:
+      - ./resolver/named.conf:/etc/bind/named.conf
+      - ./logs/resolver:/var/log/named
+    ports:
+      - "1054:53/udp"
+      - "1054:53/tcp"
+
+  tld-pvt:
+    image: ubuntu/bind9
+    container_name: tld-pvt-dns
+    entrypoint: ["/usr/sbin/named", "-u", "bind", "-c", "/etc/bind/named.conf", "-f"]
+    networks:
+      dns-net:
+        ipv4_address: 172.20.0.6
+    volumes:
+      - ./tld-pvt/named.conf:/etc/bind/named.conf
+      - ./tld-pvt/db.pvt:/etc/bind/db.pvt
+      - ./logs/tld-pvt:/var/log/named
+    ports:
+      - "1055:53/udp"
+      - "1055:53/tcp"
+
+  auth-master:
+    image: ubuntu/bind9
+    container_name: auth-master-dns
+    entrypoint: ["/usr/sbin/named", "-u", "bind", "-c", "/etc/bind/named.conf", "-f"]
+    networks:
+      dns-net:
+        ipv4_address: 172.20.0.8
+    volumes:
+      - ./auth-master/named.conf:/etc/bind/named.conf
+      - ./auth-master/zones:/etc/bind/zones
+      - ./logs/auth-master:/var/log/named
+    ports:
+      - "1057:53/udp"
+      - "1057:53/tcp"
+
+  auth-replica1:
+    image: ubuntu/bind9
+    container_name: auth-replica1-dns
+    entrypoint: ["/usr/sbin/named", "-u", "bind", "-c", "/etc/bind/named.conf", "-f"]
+    networks:
+      dns-net:
+        ipv4_address: 172.20.0.9
+    volumes:
+      - ./auth-replica1/named.conf:/etc/bind/named.conf
+      - ./auth-replica1/zones:/etc/bind/zones
+      - ./logs/auth-replica1:/var/log/named
+    ports:
+      - "1058:53/udp"
+      - "1058:53/tcp"
+
+  auth-replica2:
+    image: ubuntu/bind9
+    container_name: auth-replica2-dns
+    entrypoint: ["/usr/sbin/named", "-u", "bind", "-c", "/etc/bind/named.conf", "-f"]
+    networks:
+      dns-net:
+        ipv4_address: 172.20.0.10
+    volumes:
+      - ./auth-replica2/named.conf:/etc/bind/named.conf
+      - ./auth-replica2/zones:/etc/bind/zones
+      - ./logs/auth-replica2:/var/log/named
+    ports:
+      - "1059:53/udp"
+      - "1059:53/tcp"
+
+networks:
+  dns-net:
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
