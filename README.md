@@ -1,7 +1,7 @@
 # Complete Private DNS Hierarchy
 
 ## Overview
-This project defines a complete private DNS root, TLD zone servers, an iterative resolver, and a multi-master (plus replicas) authoritative setup for multiple lab zones, all orchestrated via Docker Compose. The system uses BIND (named) containers and custom configuration for isolation, delegation, and replication between simulated root, TLD, and child zones, enabling complex DNS experiments without external dependencies.​
+This repository provides a lab DNS topology, implemented in Docker Compose, using BIND. The environment consists of a private root, delegated TLDs, and separate authoritative and resolver services. Zone transfers, notifications, and explicit glue records are fully configured, supporting advanced DNS delegation and failover scenarios. No internet connectivity is required.
 
 ## Directory Structure
 ```
@@ -36,18 +36,27 @@ dns/
 │   ├── db.pvt
 │   └── named.conf
 ```
-## Components
+## Services
 
-### Root Server
-Authoritative for the DNS root zone; delegates .lab and .pvt TLDs to respective containers
+root: Authoritative DNS root. Delegates .lab and .pvt to TLD services.
 
-### TLD Servers
-Serve lab and pvt TLDs, delegate child zones to auth servers
+tld-lab, tld-pvt: Authoritative for lab and pvt. Delegate zones to auth servers.
 
-### Authoritative Master & Replicas
-Master at auth-master serves four zones, triggers NOTIFY and AXFR/IXFR to replicas
-Replicas (auth-replica1, auth-replica2) serve as BIND slaves for transfer and failover
+auth-master: Master for all lab and pvt test zones. Sends NOTIFY/AXFR to replicas.
 
-### Resolver
-Recursively resolves from root, traversing the hierarchy via iterative queries
-Forwarders are set to root server for referral chains within the lab
+auth-replica1, auth-replica2: BIND slaves, receive transfers from master.
+
+resolver: Recurses, starting at internal root. Forwarding mode enabled for lab root.
+
+## Testing
+
+```
+dig @127.0.0.0.1 -p 1054 www.test1example.lab
+dig @127.0.0.0.1 -p 1054 api.test1example.lab
+dig @127.0.0.0.1 -p 1054 www.test2example.lab
+dig @127.0.0.0.1 -p 1054 api.test2example.lab
+dig @127.0.0.0.1 -p 1054 www.test3example.lab
+dig @127.0.0.0.1 -p 1054 api.test3example.lab
+dig @127.0.0.0.1 -p 1054 www.test1example.pvt
+dig @127.0.0.0.1 -p 1054 api.test1example.pvt
+```
