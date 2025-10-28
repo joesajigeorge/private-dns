@@ -1,4 +1,4 @@
-# Complete Private DNS Hierarchy
+# Complete Private DNS Topology
 
 ## Overview
 This repository provides a lab DNS topology, implemented in Docker Compose, using BIND. The environment consists of a private root, delegated TLDs, and separate authoritative and resolver services. Zone transfers, notifications, and explicit glue records are fully configured, supporting advanced DNS delegation and failover scenarios. No internet connectivity is required.
